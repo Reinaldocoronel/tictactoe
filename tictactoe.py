@@ -31,9 +31,8 @@ def player(board):
 
     if xTurns <= oTurns:
         return X
-    elif xTurns > oTurns:
+    else:
         return O
-
 
 def actions(board):
     """    Returns set of all possible actions (i, j) available on the board.
@@ -51,8 +50,15 @@ def result(board, action):
     Returns the board that results from making move (i, j) on the board.
     """
     turnOf = player(board)
-    board[action[0]][action[1]] = turnOf
-    return board
+    newBoard = []
+    for row in board:
+        newRow = []
+        for space in row:
+            newRow.append(space)
+        newBoard.append(newRow)
+
+    newBoard[action[0]][action[1]] = turnOf
+    return newBoard
 
 
 def winner(board):
@@ -69,9 +75,7 @@ def winner(board):
         colunm = []
         for row in board:
             colunm.append(row[i])
-
         result = findthree(colunm)
-
         if result is not None:
             return result
 
@@ -91,7 +95,6 @@ def winner(board):
         return resultDiagonal
     elif resultReverse is not None:
         return resultReverse
-
     return None
 
 def findthree(row):
@@ -100,8 +103,8 @@ def findthree(row):
             result = X 
     elif row.count(O) == 3:
             result = O
-    else:
-        return result            
+    
+    return result            
 
 
 def terminal(board):
@@ -112,8 +115,8 @@ def terminal(board):
         for row in board:
             if row.count(EMPTY) > 0:
                 return False
-    else:
-        return True
+    
+    return True
 
 
 def utility(board):
@@ -138,14 +141,12 @@ def minimax(board):
     posibilities = []
     optimal = (0,0)
 
-    #explore all posible actions 
+
     for action in posibleActions:
-            current = result(board, action)
-            if terminal(current):
-                value = utility(current)
-                posibilities.append((value, action))
-            else: 
-                minimax(current)
+        resultingBoard = result(board, action)
+        value = getValue(resultingBoard)
+        posibilities.append((value, action))
+
 
     if turnOf == X:
         factor = -3
@@ -162,4 +163,37 @@ def minimax(board):
                 optimal = move[1]
 
     return optimal
+
+
+def getValue(board):
+
+    if not terminal(board):
+        resultingBoard = result(board,minimax(board))
+        value = getValue(board)
+        return value
+    
+
+    return utility(board) 
+
+
+if __name__ == "__main__":
+
+    board = [[O, EMPTY, EMPTY],
+            [EMPTY, X, EMPTY],
+            [EMPTY, EMPTY, EMPTY]]
+
+    print(player(board))
+    print(board)
+    print(result(board, (0,1)))
+    print(board)
+    minimax(board)
+
+    board = [[O, X, EMPTY],
+            [EMPTY, X, EMPTY],
+            [O, X, EMPTY]]
+
+    print(utility(board))
+    if not terminal(board):
+        print("not terminal")
+    print(terminal(board))
 
